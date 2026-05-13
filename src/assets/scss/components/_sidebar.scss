@@ -1,0 +1,25 @@
+.sidebar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  min-width: 200px;
+  background-color: $light;
+  border-right: 1px solid #e5e7eb;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  overflow-y: auto;
+  z-index: 100;
+
+  .nav-link {
+    color: $primary;
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+  }
+  .nav-link:hover {
+    background-color: $primary;
+    color: #f8f9fa;
+  }
+}
