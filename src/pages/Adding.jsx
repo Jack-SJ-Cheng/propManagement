@@ -14,42 +14,65 @@ export default function Adding() {
   const today = new Date().toISOString().split("T")[0];
 
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     defaultValues: {
       // ---後端資料必填---
       origin_price: 0,
       price: 0,
       // ---後端資料必填---
-      shipType: "yacht",
+      shipType: "遊艇",
       date: new Date().toISOString().split("T")[0],
       title: "",
-      boatType: "semi-planing",
-      bottomType: "tunnel",
-      hullMaterial: "fiberglass",
+      boatType: "半滑航型",
+      category: "隧道式",
+      hullMaterial: "玻璃纖維",
       unit: "2",
       MEUnit: "HP",
       diameterUnit: "mm",
       propellerPitchUnit: "mm",
-      bladeNumExpect: "1",
-      LH: "1",
-      RH: "1",
+      bladeNumExpect: "無",
+      bladeNum: "",
+      LH: 1,
+      RH: 1,
       is_enabled: 0,
       diameterInMM: 0,
       diameterInINCH: 0,
+      powerInPS: 0,
+      powerInKW: 0,
+      powerInHP: 0,
     }
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const isEnabled = watch("is_enabled");
+
   const onSubmit = async (data) => {
     try {
-      if(data.propellerDiameterRecord) {
-        if(data.propellerDiameterUnit === "mm") {
-          diameterInMM = data.propellerDiameter;
-          diameterInINCH = (data.propellerDiameter / 25.4);
-        } else if(data.propellerDiameterUnit === "inch") {
-          diameterInMM = (data.propellerDiameter * 25.4);
-          diameterInINCH = data.propellerDiameter;
+      if(data.propellerDiameter) {
+        if(data.diameterUnit === "mm") {
+          data.diameterInMM = data.propellerDiameter * 1;
+          data.diameterInINCH = (data.propellerDiameter / 25.4);
+        } else if(data.diameterUnit === "inch") {
+          data.diameterInMM = (data.propellerDiameter * 25.4);
+          data.diameterInINCH = data.propellerDiameter * 1;
         }
       }
+      if(data.MEUnit === "HP") {
+        data.powerInHP = data.ratedPower * 1;
+        data.powerInKW = data.ratedPower * 0.7457;
+        data.powerInPS = (data.ratedPower * 0.7457) / 0.7355;
+      } else if(data.MEUnit === "PS") {
+        data.powerInHP = (data.ratedPower * 0.7355) / 0.7457;
+        data.powerInKW = data.ratedPower * 0.7355;
+        data.powerInPS = data.ratedPower * 1;
+      } else if(data.MEUnit === "kW") {
+        data.powerInHP = data.ratedPower / 0.7457;
+        data.powerInKW = data.ratedPower * 1;
+        data.powerInPS = data.ratedPower / 0.7355;
+      }
+      // if(data.propellerDiameter && data.propellerPitch) {
+      //   data.is_enabled = 1;
+      // }
       setLoading(true);
       const res = await axios.post(`${url}/v2/api/${api_path}/admin/product`, {data: data})
       console.log(res.data)
@@ -65,11 +88,11 @@ export default function Adding() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="adding p-3 d-flex flex-column gap-3">
         <div className="shipType btn-group">
-          <input type="radio" className="btn-check" id="yacht" name="shipType" value="yacht" {...register("shipType")} />
+          <input type="radio" className="btn-check" id="yacht" name="shipType" value="遊艇" {...register("shipType")} />
           <label className="btn btn-outline-primary" htmlFor="yacht">遊艇</label>
-          <input type="radio" className="btn-check" id="fishBoat" name="shipType" value="fishBoat" {...register("shipType")} />
+          <input type="radio" className="btn-check" id="fishBoat" name="shipType" value="漁船" {...register("shipType")} />
           <label className="btn btn-outline-primary" htmlFor="fishBoat">漁船</label>
-          <input type="radio" className="btn-check" id="workBoat" name="shipType" value="workBoat" {...register("shipType")} />
+          <input type="radio" className="btn-check" id="workBoat" name="shipType" value="工作船" {...register("shipType")} />
           <label className="btn btn-outline-primary" htmlFor="workBoat">工作船</label>
         </div>
         {/* 客戶資料 */}
@@ -129,27 +152,28 @@ export default function Adding() {
               <div className="col-lg-3 col-md-6">
                 <label htmlFor="boatType" className="form-label ">船型</label>
                 <select name="boatType" id="boatType" className="form-select" {...register("boatType")}>
-                  <option value="planing">滑航型</option>
-                  <option value="semi-planing">半滑航型</option>
-                  <option value="displacement">排水型</option>
-                  <option value="semi-displacement">半排水型</option>
+                  <option value="滑航型">滑航型</option>
+                  <option value="半滑航型">半滑航型</option>
+                  <option value="排水型">排水型</option>
+                  <option value="半排水型<">半排水型</option>
                 </select>
               </div>
               <div className="col-lg-3 col-md-6">
                 <label htmlFor="category" className="form-label ">船底設計</label>
                 <select name="category" id="category" className="form-select" {...register("category", {required: "船底設計為必填"})}>
-                  <option value="open">開放式</option>
-                  <option value="tunnel">隧道式</option>
+                  <option value="開放式">開放式</option>
+                  <option value="隧道式">隧道式</option>
+                  <option value="導罩">導罩</option>
                 </select>
                 {errors.category && <span className="text-danger">{errors.category.message}</span>}
               </div>
               <div className="col-lg-3 col-md-6">
                 <label htmlFor="hullMaterial" className="form-label ">船殼材料</label>
                 <select name="hullMaterial" id="hullMaterial" className="form-select" {...register("hullMaterial")}>
-                  <option value="steel">鋼</option>
-                  <option value="fiberglass">玻璃纖維</option>
-                  <option value="aluminum">鋁</option>
-                  <option value="wood">木</option>
+                  <option value="鋼">鋼</option>
+                  <option value="玻璃纖維">玻璃纖維</option>
+                  <option value="鋁">鋁</option>
+                  <option value="木">木</option>
                 </select>
               </div>
               <div className="col-md-4">
@@ -212,6 +236,7 @@ export default function Adding() {
                 <input type="number" className="form-control" id="ratedPower" {...register("ratedPower", {
                   required: "此欄位為必填",
                 })} />
+                {errors.ratedPower && <span className="text-danger">{errors.ratedPower.message}</span>}
               </div>
               <div className="col-6 col-md-3 col-lg-2">
                 <label htmlFor="MEUnit" className="form-label ">馬力單位</label>
@@ -226,6 +251,7 @@ export default function Adding() {
                 <input type="number" className="form-control" id="ratedRPM" {...register("ratedRPM", {
                   required: "此欄位為必填",
                 })} />
+                {errors.ratedRPM && <span className="text-danger">{errors.ratedRPM.message}</span>}
               </div>
               
               <div className="col-md-4">
@@ -267,7 +293,7 @@ export default function Adding() {
               <div className="col-md-4">
                 <label htmlFor="bladeNumExpect" className="form-label ">客戶預期葉片數</label>
                 <select name="bladeNumExpect" id="bladeNumExpect" className="form-select" {...register("bladeNumExpect")}>
-                  <option value="1">無預期</option>
+                  <option value="無">無預期</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="4">4</option>
@@ -314,6 +340,7 @@ export default function Adding() {
               <div className="col-5 col-lg-2">
                 <label htmlFor="bladeNum" className="form-label ">葉片數</label>
                 <select name="bladeNum" id="bladeNum" className="form-select" {...register("bladeNum")}>
+                  <option value="">無</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="4">4</option>
@@ -362,10 +389,16 @@ export default function Adding() {
           </div>
         </div>
       </div>
-      <div className="d-flex justify-content-end">
-        <button type="button" className="btn btn-secondary me-3 px-5" disabled={loading}
-        onClick={() => reset()}>重置</button>
-        <button type="submit" className="btn btn-primary px-5" disabled={loading}>{loading ? <BeatLoader size={6} color="#fff"/> : "提交"}</button>
+      <div className="d-flex justify-content-between">
+        <div className="form-check form-switch">
+          <input type="checkbox" className="btn-check" id="caseClosed" {...register("is_enabled")}/>
+          <label className={`${isEnabled ? "btn btn-outline-success" : "btn btn-outline-primary"} px-5`} htmlFor="caseClosed">{isEnabled ? "已結案" : "未結案" }</label>
+        </div>
+        <div className="edit">
+          <button type="button" className="btn btn-secondary me-3 px-5" disabled={loading}
+          onClick={() => reset()}>重置</button>
+          <button type="submit" className="btn btn-primary px-5" disabled={loading}>{loading ? <BeatLoader size={6} color="#fff"/> : "提交"}</button>
+        </div>
       </div>
     </form>
   )

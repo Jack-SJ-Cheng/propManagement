@@ -1,19 +1,17 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router";
 import { BeatLoader } from "react-spinners";
 
-
 const url = import.meta.env.VITE_API_URL;
-const api_path = import.meta.env.VITE_API_PATH;
 
 
 
 export default function Login() {
 
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
@@ -21,6 +19,7 @@ export default function Login() {
       setLoading(true);
       const res = await axios.post(`${url}/v2/admin/signin`, data);
       console.log("登入成功:", res);
+      // eslint-disable-next-line react-hooks/immutability
       document.cookie = `HScookie=${res.data.token}; expires=${new Date(res.data.expired)}; path=/`
       // axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
       navigate("/");
@@ -28,6 +27,20 @@ export default function Login() {
         console.error("登入失敗:", error);
     } finally { setLoading(false) }
   }
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const cookie = document.cookie.replace(/(?:(?:^|.*;\s*)HScookie\s*=\s*([^;]*).*$)|^.*$/,"$1",);
+        axios.defaults.headers.common['Authorization'] = cookie;
+        const res = await axios.post(`${url}/v2/api/user/check`);
+        console.log("驗證成功:", res.data);
+        navigate("/");
+      } catch (error) {
+        console.error("驗證失敗:", error);
+      }
+    })()
+  })
 
   
   return (
@@ -52,6 +65,13 @@ export default function Login() {
                 color="#ffffff"
                 size={12}
                 /> : <i>登入系統</i>}</button>
+            <button className="btn btn-outline-secondary mt-4 col-12"
+              onClick={() => {
+                setValue("username", "jack.portfolio.dev@gmail.com");
+                setValue("password", "demoportfolio");
+                handleSubmit(onSubmit)();
+              }}
+            >登入demo帳號</button>
           </form>
         </div>
       </div>
