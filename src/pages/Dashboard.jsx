@@ -4,6 +4,10 @@ import { ClockLoader } from "react-spinners";
 import yacht from '../assets/icon/yacht.svg'
 import fishBoat from '../assets/icon/fishBoat.svg'
 import workBoat from '../assets/icon/workBoat.svg'
+import overall from '../assets/icon/overall.svg'
+import single from '../assets/icon/single.svg'
+import twin from '../assets/icon/twin.svg'
+import three from '../assets/icon/three.svg'
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -91,7 +95,7 @@ export default function Dashboard() {
                   <p className="fs-2 m-0">{loading ? <ClockLoader size={48}/> : data.length.toLocaleString() }</p>
                 </div>
                 <div className="overallIcon d-flex align-items-center">
-                  <img src="/overall.svg" alt="overall icon" height="50"/>
+                  <img src={overall} alt="overall icon" height="50"/>
                 </div>
               </div>
             </div>
@@ -153,7 +157,7 @@ export default function Dashboard() {
                   <p className="fs-2 m-0">{loading ? <ClockLoader size={48}/> : data.filter(item => (item.unit == 1)).length}</p>
                 </div>
                 <div className="overallIcon d-flex align-items-center">
-                  <img src="/single.svg" alt="overall icon" height="50"/>
+                  <img src={single} alt="overall icon" height="50"/>
                 </div>
               </div>
             </div>
@@ -168,7 +172,7 @@ export default function Dashboard() {
                   <p className="fs-2 m-0">{loading ? <ClockLoader size={48}/> : data.filter(item => (item.unit == 2)).length}</p>
                 </div>
                 <div className="overallIcon d-flex align-items-center">
-                  <img src="/twin.svg" alt="overall icon" height="50"/>
+                  <img src={twin} alt="overall icon" height="50"/>
                 </div>
               </div>
             </div>
@@ -183,7 +187,7 @@ export default function Dashboard() {
                   <p className="fs-2 m-0">{loading ? <ClockLoader size={48}/> : data.filter(item => (item.unit >= 3)).length}</p>
                 </div>
                 <div className="overallIcon d-flex align-items-center">
-                  <img src="/three.svg" alt="overall icon" height="50"/>
+                  <img src={three} alt="overall icon" height="50"/>
                 </div>
               </div>
             </div>
